@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Birthday Invitation</title>
+    <meta
+      name="description"
+      content="A mobile-first birthday invitation website made with love."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Manrope:wght@400;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="glow glow-top" aria-hidden="true"></div>
+    <div class="glow glow-bottom" aria-hidden="true"></div>
+
+    <main class="container">
+      <header class="hero reveal">
+        <p class="kicker">for my baby</p>
+        <h1>Your Special Day Is Ready</h1>
+        <p class="lead">
+          Monday, April 6, 2026. This is a day to relax and enjoy.
+        </p>
+        <div id="choice" class="choice">
+          <p class="question">Are you interested?</p>
+          <div class="choice-actions">
+            <button id="yesButton" class="button" type="button">Yes</button>
+            <button id="noButton" class="button neutral" type="button">No</button>
+          </div>
+          <p id="responseText" class="response-text" aria-live="polite"></p>
+        </div>
+      </header>
+
+      <section id="invitation" class="invitation" aria-live="polite">
+        <article class="card reveal locked-plan">
+          <div class="plan-lock-content">
+            <h2>Happy birthday, Baby!</h2>
+            <p>I hope you enjoy what I have planned for today.</p>
+          </div>
+          <div class="plan-lock-overlay" aria-hidden="true">
+            <div class="plan-lock-badge">
+              <p class="plan-lock-title">Locked until April 6</p>
+              <p class="plan-lock-time lock-countdown">Loading...</p>
+            </div>
+          </div>
+        </article>
+
+        <article id="dayPlanCard" class="card reveal locked-plan">
+          <h3>Day Plan</h3>
+          <div class="plan-lock-content">
+            <ul class="timeline">
+              <li>
+                <span class="time">1:00 PM</span>
+                <div>
+                  <h4>Cake Baking - IDIM DIY Bakery</h4>
+                </div>
+              </li>
+              <li>
+                <span class="time">3:00 PM</span>
+                <div>
+                  <h4>SPA - Body Essence Boutique Spa</h4>
+                </div>
+              </li>
+              <li>
+                <span class="time">5:00 PM</span>
+                <div>
+                  <h4>Dinner - Din Tai Fung</h4>
+                </div>
+              </li>
+            </ul>
+          </div>
+          <div class="plan-lock-overlay" aria-hidden="true">
+            <div class="plan-lock-badge">
+              <p class="plan-lock-title">Locked until April 6</p>
+              <p class="plan-lock-time lock-countdown">Loading...</p>
+            </div>
+          </div>
+        </article>
+
+        <article class="card reveal">
+          <h3>Quick Details</h3>
+          <p><strong>Meet:</strong> At your place</p>
+          <p><strong>Time:</strong> 12:30 PM</p>
+          <p><strong>Dress code:</strong> Comfy</p>
+          <p><strong>Bring:</strong> Phone and appetite</p>
+          <a class="button secondary" href="tel:+40000000000">Tap To Confirm</a>
+        </article>
+
+        <p id="confirmMessage" class="confirm-message" aria-live="polite"></p>
+      </section>
+    </main>
+
+    <script src="script.js"></script>
+  </body>
+</html>
