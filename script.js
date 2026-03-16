@@ -134,3 +134,15 @@ window.addEventListener("load", () => {
   setLockedCards(timerEnabled);
   revealWithDelay();
 });
+
+// Prevent copying locked content
+document.addEventListener("copy", (e) => {
+  const selection = window.getSelection();
+  const range = selection.getRangeAt(0);
+  const container = document.createElement("div");
+  container.appendChild(range.cloneContents());
+  
+  if (container.closest(".locked-plan.is-locked")) {
+    e.preventDefault();
+  }
+});

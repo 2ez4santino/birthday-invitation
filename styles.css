@@ -248,6 +248,10 @@ h1 {
   overflow: hidden;
 }
 
+.locked-plan.is-locked {
+  user-select: none;
+}
+
 .plan-lock-content {
   transition: filter 0.35s ease, opacity 0.35s ease, transform 0.35s ease;
 }
@@ -257,6 +261,7 @@ h1 {
   opacity: 0.72;
   transform: scale(1.01);
   user-select: none;
+  pointer-events: none;
 }
 
 .plan-lock-overlay {
