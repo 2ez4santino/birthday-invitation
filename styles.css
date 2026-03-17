@@ -331,6 +331,11 @@ h1 {
   user-select: none;
 }
 
+.timeline li.is-locked {
+  user-select: none;
+  -webkit-user-select: none;
+}
+
 .timeline li.is-locked::after {
   content: attr(data-lock-label);
   grid-column: 2;

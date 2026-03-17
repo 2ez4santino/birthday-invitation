@@ -9,12 +9,19 @@ const lockCountdowns = document.querySelectorAll(".lock-countdown");
 const revealItems = document.querySelectorAll(".reveal");
 const unlockDate = new Date("2026-04-06T00:00:00");
 const timerEnabled = true;
-const timelineItems = Array.from(document.querySelectorAll("#dayPlanCard .timeline li"));
+const timelineList = document.querySelector("#dayPlanCard .timeline");
+const dayPlanEntries = [
+  { time: "12:30 PM", activity: "Photobooth" },
+  { time: "1:00 PM", activity: "Cake Baking - IDIM DIY Bakery" },
+  { time: "3:00 PM", activity: "SPA - Body Essence Boutique Spa" },
+  { time: "5:00 PM", activity: "Dinner - Din Tai Fung" },
+];
 
 let hasClickedYes = false;
 let invitationOpened = false;
 let timerId = null;
 let lockedContentUnlocked = false;
+let timelineSchedule = [];
 
 const parseTimelineTime = (timeLabel) => {
   const match = timeLabel.trim().match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i);
@@ -40,14 +47,40 @@ const formatTimeLabel = (date) => {
   });
 };
 
-const timelineSchedule = timelineItems.map((item) => {
-  const timeNode = item.querySelector(".time");
-  const unlockAt = timeNode ? parseTimelineTime(timeNode.textContent) : null;
-  return { item, unlockAt };
-});
+const buildTimeline = () => {
+  if (!timelineList) {
+    timelineSchedule = [];
+    return;
+  }
 
-const setTimelineItemLocked = (item, locked, unlockAt) => {
+  timelineList.innerHTML = "";
+  timelineSchedule = dayPlanEntries.map(({ time, activity }) => {
+    const item = document.createElement("li");
+    const timeNode = document.createElement("span");
+    const contentWrap = document.createElement("div");
+    const titleNode = document.createElement("h4");
+
+    timeNode.className = "time";
+    timeNode.textContent = time;
+    titleNode.textContent = "Surprise activity";
+
+    contentWrap.appendChild(titleNode);
+    item.appendChild(timeNode);
+    item.appendChild(contentWrap);
+    timelineList.appendChild(item);
+
+    return {
+      item,
+      titleNode,
+      activity,
+      unlockAt: parseTimelineTime(time),
+    };
+  });
+};
+
+const setTimelineItemLocked = (item, titleNode, activity, locked, unlockAt) => {
   item.classList.toggle("is-locked", locked);
+  titleNode.textContent = locked ? "Surprise activity" : activity;
 
   if (locked && unlockAt) {
     item.setAttribute("data-lock-label", `Locked until ${formatTimeLabel(unlockAt)}`);
@@ -59,21 +92,21 @@ const setTimelineItemLocked = (item, locked, unlockAt) => {
 
 const updateTimelineLocks = () => {
   if (!timerEnabled) {
-    timelineSchedule.forEach(({ item }) => {
-      setTimelineItemLocked(item, false);
+    timelineSchedule.forEach(({ item, titleNode, activity }) => {
+      setTimelineItemLocked(item, titleNode, activity, false);
     });
     return;
   }
 
   const now = Date.now();
-  timelineSchedule.forEach(({ item, unlockAt }) => {
+  timelineSchedule.forEach(({ item, titleNode, activity, unlockAt }) => {
     if (!unlockAt) {
-      setTimelineItemLocked(item, false);
+      setTimelineItemLocked(item, titleNode, activity, false);
       return;
     }
 
     const isUnlocked = now >= unlockAt.getTime();
-    setTimelineItemLocked(item, !isUnlocked, unlockAt);
+    setTimelineItemLocked(item, titleNode, activity, !isUnlocked, unlockAt);
   });
 };
 
@@ -203,6 +236,7 @@ noButton.addEventListener("click", () => {
 });
 
 window.addEventListener("load", () => {
+  buildTimeline();
   setLockedCards(timerEnabled);
   updateTimelineLocks();
   revealWithDelay();
@@ -211,11 +245,16 @@ window.addEventListener("load", () => {
 // Prevent copying locked content
 document.addEventListener("copy", (e) => {
   const selection = window.getSelection();
-  const range = selection.getRangeAt(0);
-  const container = document.createElement("div");
-  container.appendChild(range.cloneContents());
-  
-  if (container.closest(".locked-plan.is-locked")) {
+  if (!selection || selection.rangeCount === 0) {
+    return;
+  }
+
+  let anchorElement = selection.anchorNode;
+  if (anchorElement && anchorElement.nodeType === Node.TEXT_NODE) {
+    anchorElement = anchorElement.parentElement;
+  }
+
+  if (anchorElement?.closest(".locked-plan.is-locked, .timeline li.is-locked")) {
     e.preventDefault();
   }
 });
