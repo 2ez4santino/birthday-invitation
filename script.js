@@ -4,16 +4,83 @@ const responseText = document.getElementById("responseText");
 const confirmMessage = document.getElementById("confirmMessage");
 const choice = document.getElementById("choice");
 const invitation = document.getElementById("invitation");
-const lockedCards = document.querySelectorAll(".locked-plan");
+const lockedCards = document.querySelectorAll(".locked-plan:not(#dayPlanCard)");
 const lockCountdowns = document.querySelectorAll(".lock-countdown");
 const revealItems = document.querySelectorAll(".reveal");
-const unlockDate = new Date("2026-04-06T12:00:00");
+const unlockDate = new Date("2026-04-06T00:00:00");
 const timerEnabled = true;
+const timelineItems = Array.from(document.querySelectorAll("#dayPlanCard .timeline li"));
 
 let hasClickedYes = false;
 let invitationOpened = false;
 let timerId = null;
 let lockedContentUnlocked = false;
+
+const parseTimelineTime = (timeLabel) => {
+  const match = timeLabel.trim().match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i);
+  if (!match) {
+    return null;
+  }
+
+  let hours = Number(match[1]) % 12;
+  const minutes = Number(match[2]);
+  const meridiem = match[3].toUpperCase();
+
+  if (meridiem === "PM") {
+    hours += 12;
+  }
+
+  return new Date(2026, 3, 6, hours, minutes, 0, 0);
+};
+
+const formatTimeLabel = (date) => {
+  return date.toLocaleTimeString("en-US", {
+    hour: "numeric",
+    minute: "2-digit",
+  });
+};
+
+const timelineSchedule = timelineItems.map((item) => {
+  const timeNode = item.querySelector(".time");
+  const unlockAt = timeNode ? parseTimelineTime(timeNode.textContent) : null;
+  return { item, unlockAt };
+});
+
+const setTimelineItemLocked = (item, locked, unlockAt) => {
+  item.classList.toggle("is-locked", locked);
+
+  if (locked && unlockAt) {
+    item.setAttribute("data-lock-label", `Locked until ${formatTimeLabel(unlockAt)}`);
+    return;
+  }
+
+  item.removeAttribute("data-lock-label");
+};
+
+const updateTimelineLocks = () => {
+  if (!timerEnabled) {
+    timelineSchedule.forEach(({ item }) => {
+      setTimelineItemLocked(item, false);
+    });
+    return;
+  }
+
+  const now = Date.now();
+  timelineSchedule.forEach(({ item, unlockAt }) => {
+    if (!unlockAt) {
+      setTimelineItemLocked(item, false);
+      return;
+    }
+
+    const isUnlocked = now >= unlockAt.getTime();
+    setTimelineItemLocked(item, !isUnlocked, unlockAt);
+  });
+};
+
+const hasPendingTimelineLocks = () => {
+  const now = Date.now();
+  return timelineSchedule.some(({ unlockAt }) => unlockAt && now < unlockAt.getTime());
+};
 
 const revealWithDelay = () => {
   revealItems.forEach((item, index) => {
@@ -84,18 +151,22 @@ const formatRemaining = (remainingMs) => {
 const updateCountdown = () => {
   const remaining = unlockDate.getTime() - Date.now();
 
+  updateTimelineLocks();
+
   if (remaining <= 0) {
     lockCountdowns.forEach((item) => {
       item.textContent = "Unlocked now";
     });
-    if (timerId) {
-      clearInterval(timerId);
-      timerId = null;
-    }
 
     if (hasClickedYes) {
       unlockLockedContent();
     }
+
+    if (timerId && !hasPendingTimelineLocks()) {
+      clearInterval(timerId);
+      timerId = null;
+    }
+
     return;
   }
 
@@ -108,6 +179,7 @@ const updateCountdown = () => {
 yesButton.addEventListener("click", () => {
   if (!timerEnabled) {
     setLockedCards(false);
+    updateTimelineLocks();
     openInvitation();
     choice.style.display = "none";
     confirmMessage.textContent = "It's a date!";
@@ -132,6 +204,7 @@ noButton.addEventListener("click", () => {
 
 window.addEventListener("load", () => {
   setLockedCards(timerEnabled);
+  updateTimelineLocks();
   revealWithDelay();
 });
 

@@ -322,6 +322,23 @@ h1 {
   grid-template-columns: 84px 1fr;
   gap: 0.72rem;
   align-items: center;
+  position: relative;
+}
+
+.timeline li.is-locked h4 {
+  filter: blur(5px);
+  opacity: 0.78;
+  user-select: none;
+}
+
+.timeline li.is-locked::after {
+  content: attr(data-lock-label);
+  grid-column: 2;
+  justify-self: end;
+  margin-top: -0.1rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--secondary-deep);
 }
 
 .time {
